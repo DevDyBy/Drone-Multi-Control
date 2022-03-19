@@ -30,23 +30,17 @@ def mapper(val):
 
 def gests_recog():
     capture = cv2.VideoCapture(0)
-    frameWidth = capture.get(cv2.CAP_PROP_FRAME_WIDTH)
-    frameHeight = capture.get(cv2.CAP_PROP_FRAME_HEIGHT)
 
     with handsModule.Hands(static_image_mode=False, min_detection_confidence=0.7, min_tracking_confidence=0.7,
                            max_num_hands=1) as hands:
         while (True):
             # frame == 480 640
-            # roi == 310 307
             ret, frame = capture.read()
             results = hands.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-            cv2.rectangle(frame, (10, 30), (310, 330), (0, 255, 0), 2)
-            roi = frame[25:335, 8:315]
             k = cv2.waitKey(1)
 
             cv2.imshow('Hands recognizer', frame)
-            hands_roi = hands.process(cv2.cvtColor(roi, cv2.COLOR_BGR2RGB))
-            height_roi, width_roi, channels_roi = roi.shape
+            height_frame, width_frame, channels_frame = frame.shape
 
             if results.multi_hand_landmarks != None:
                 new_row = []
@@ -54,9 +48,10 @@ def gests_recog():
                     try:
                         for point in handsModule.HandLandmark:
                             normalizedLandmark = handLandmarks.landmark[point]
-                            pixelCoordinatesLandmark = drawingModule._normalized_to_pixel_coordinates(normalizedLandmark.x,
-                                                                                                  normalizedLandmark.y,
-                                                                                                  width_roi, height_roi)
+                            pixelCoordinatesLandmark = drawingModule._normalized_to_pixel_coordinates(
+                                normalizedLandmark.x,
+                                normalizedLandmark.y,
+                                width_frame, height_frame)
                             new_row.extend(list(pixelCoordinatesLandmark))
                     except TypeError:
                         break
@@ -76,11 +71,5 @@ def gests_recog():
                     except ValueError:
                         continue
 
-            if k == ord('a'):
-                start = not start
-
-            if k == ord('q'):
-                break
-
-    capture.release()
     cv2.destroyAllWindows()
+    capture.release()

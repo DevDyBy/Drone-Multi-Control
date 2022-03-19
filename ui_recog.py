@@ -1,10 +1,24 @@
+from PyQt5.QtCore import QRunnable, pyqtSlot, QThreadPool
 from PyQt5.QtGui import QIcon
-from PyQt5 import QtCore, QtGui, QtWidgets
-from drone_vision import gests_recog
+from PyQt5 import QtCore, QtWidgets
+from gestures_recog import gests_recog
 from voice_recog import recog_speech
 
 
+class Gests_Recognition(QRunnable):
+
+    def __init__(self):
+        super(Gests_Recognition, self).__init__()
+
+    @pyqtSlot()
+    def run(self):
+        gests_recog()
+
+
 class Ui_MainWindow(object):
+
+    def __init__(self):
+        self.threadpool = QThreadPool()
 
     def setupUi(self, MainWindow):
         # 363x346px
@@ -21,21 +35,18 @@ class Ui_MainWindow(object):
         self.voice_btn.setStyleSheet("QPushButton{background-color: #aae053;\n"
         "border-radius: 60%;\nbackground-image: url('images/micro.png');\n"
         "background-repeat: no-repeat;\nbackground-position: center;}\n"
-        "QPushButton:hover{background-color: #81eb3b;}"
-        "QPushButton:pressed{background-color: yellow;}")
+        "QPushButton:hover{background-color: #81eb3b;}")
         self.voice_btn.clicked.connect(recog_speech)
 
         self.cam_btn = QtWidgets.QPushButton(self.centralwidget)
         self.cam_btn.setGeometry(QtCore.QRect(100, 280, 161, 151))
-        self.cam_btn.setObjectName("cam_stop_btn")
+        self.cam_btn.setObjectName("cam_btn")
         self.cam_btn.setCheckable(True)
         self.cam_btn.clicked.connect(self.gest_recognition)
         self.cam_btn.setStyleSheet("QPushButton{background-color: #aae053;\n"
                                         "border-radius: 60%;\nbackground-image: url('images/camera.png');\n"
                                         "background-repeat: no-repeat;\nbackground-position: center;}\n"
-                                        "QPushButton:hover{background-color: #81eb3b;}"
-                                        "QPushButton:pressed{background-color: yellow;\n"
-                                        "background-image: url('images/pause.png');}")
+                                        "QPushButton:hover{background-color: #81eb3b;}")
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
@@ -55,9 +66,19 @@ class Ui_MainWindow(object):
 
     def gest_recognition(self):
         if self.cam_btn.isChecked():
-            gests_recog()
+            self.cam_btn.setStyleSheet("QPushButton{background-color: red;\n"
+                                       "border-radius: 60%;\nbackground-image: url('images/pause.png');\n"
+                                       "background-repeat: no-repeat;\nbackground-position: center;}\n"
+                                       "QPushButton:hover{background-color: #81eb3b;}")
+
+            self.g_recog = Gests_Recognition()
+            self.threadpool.start(self.g_recog)
         else:
-            return
+            self.cam_btn.setStyleSheet("QPushButton{background-color: #aae053;\n"
+                                       "border-radius: 60%;\nbackground-image: url('images/camera.png');\n"
+                                       "background-repeat: no-repeat;\nbackground-position: center;}\n"
+                                       "QPushButton:hover{background-color: #81eb3b;}")
+            self.threadpool.cancel(self.g_recog)
 
 
 if __name__ == "__main__":
