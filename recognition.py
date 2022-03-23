@@ -40,7 +40,9 @@ class Keybord_Recognition(QtCore.QObject):
 
     def run(self):
         keyboard.hook(self.key_recog)
-        keyboard.wait('p')
+
+    def stop(self):
+        keyboard.unhook(self.key_recog)
 
 
 class Voice_Recognition(QtCore.QObject):
@@ -282,7 +284,7 @@ class Ui_MainWindow(object):
                                        "background-repeat: no-repeat;\nbackground-position: center;}\n"
                                        "QPushButton:hover{background-color: #81eb3b;}")
 
-            keyboard.send('q')
+            self.k_recog.stop()
             self.thread_kboard.terminate()
 
 

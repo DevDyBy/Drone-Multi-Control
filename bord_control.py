@@ -23,4 +23,3 @@ def key_recog(k):
 
 
 keyboard.hook(key_recog)
-keyboard.wait('q+h')
