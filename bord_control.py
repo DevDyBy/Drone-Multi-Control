@@ -1,30 +1,26 @@
-import cv2
-from djitellopy import Tello
+import keyboard
 
 
-def bord_control():
-    while True:
-        k = cv2.waitKey(1)
+def key_recog(k):
+    if k.event_type == 'down':
+        if k.name == 'w':
+            print('forward')
 
-        if k == ord('w'):
-            print('Вперёд!')
+        elif k.name == 's':
+            print('back')
 
-        if k == ord('s'):
-            print('Назад!')
+        elif k.name == 'a':
+            print('left')
 
-        if k == ord('a'):
-            print('Влево!')
+        elif k.name == 'd':
+            print('right')
 
-        if k == ord('d'):
-            print('Вправо!')
+        elif k.name == 'z':
+            print('up')
 
-        if k == ord('o'):
-            print('Вверх!')
-
-        if k == ord('p'):
-            print('Вниз!')
+        elif k.name == 'x':
+            print('down')
 
 
-if __name__ == 'main':
-    print(bord_control())
-
+keyboard.hook(key_recog)
+keyboard.wait('q+h')

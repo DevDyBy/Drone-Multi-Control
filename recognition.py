@@ -1,12 +1,46 @@
 import pandas as pd
 import numpy as np
 import cv2
+import keyboard
 import mediapipe
 import speech_recognition as sr
-from PyQt5.QtCore import QThread
-from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import QUrl
+from PyQt5.QtGui import QIcon, QImage
 from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
+from PyQt5.QtMultimediaWidgets import QVideoWidget
+from PyQt5.QtWidgets import QVBoxLayout
 from tensorflow.keras.models import load_model
+
+
+class Keybord_Recognition(QtCore.QObject):
+
+    def __init__(self):
+        super(Keybord_Recognition, self).__init__()
+
+    def key_recog(self, k):
+        if k.event_type == 'down':
+            if k.name == 'w':
+                print('forward')
+
+            elif k.name == 's':
+                print('back')
+
+            elif k.name == 'a':
+                print('left')
+
+            elif k.name == 'd':
+                print('right')
+
+            elif k.name == 'z':
+                print('up')
+
+            elif k.name == 'x':
+                print('down')
+
+    def run(self):
+        keyboard.hook(self.key_recog)
+        keyboard.wait('p')
 
 
 class Voice_Recognition(QtCore.QObject):
@@ -18,40 +52,40 @@ class Voice_Recognition(QtCore.QObject):
     def run(self):
         while self.running:
             try:
-                self.rec = sr.Recognizer()
-                self.mic = sr.Microphone(device_index=1)
+                rec = sr.Recognizer()
+                mic = sr.Microphone(device_index=1)
 
-                with self.mic as self.source:
-                    self.audio = self.rec.listen(self.source)
-                    self.text = self.rec.recognize_google(self.audio, language='ru-RU').lower()
+                with mic as source:
+                    audio = rec.listen(source)
+                    text = rec.recognize_google(audio, language='ru-RU').lower()
 
-                    self.words_list = self.text.split()
-                    self.num_list = [int(word) for word in self.words_list if word.isnumeric()]
+                    words_list = text.split()
+                    num_list = [int(word) for word in words_list if word.isnumeric()]
 
-                    if 'повернись' in self.words_list and self.num_list:
-                        if 'по' in self.words_list:
-                            print(self.text)
-                        elif 'против' in self.words_list:
-                            print(self.text)
+                    if 'повернись' in words_list and num_list:
+                        if 'по' in words_list:
+                            print(text)
+                        elif 'против' in words_list:
+                            print(text)
 
-                    elif 'лети' in self.words_list and self.num_list:
-                        if 'вперёд' in self.words_list:
-                            print(self.text)
-                        elif 'назад' in self.words_list:
-                            print(self.text)
-                        elif 'влево' in self.words_list:
-                            print(self.text)
-                        elif 'вправо' in self.words_list:
-                            print(self.text)
-                        elif 'вверх' in self.words_list:
-                            print(self.text)
-                        elif 'вниз' in self.words_list:
-                            print(self.text)
+                    elif 'лети' in words_list and num_list:
+                        if 'вперёд' in words_list:
+                            print(text)
+                        elif 'назад' in words_list:
+                            print(text)
+                        elif 'влево' in words_list:
+                            print(text)
+                        elif 'вправо' in words_list:
+                            print(text)
+                        elif 'вверх' in words_list:
+                            print(text)
+                        elif 'вниз' in words_list:
+                            print(text)
 
-                    elif 'взлети' in self.words_list:
-                        print(self.text)
-                    elif 'приземлись' in self.words_list:
-                        print(self.text)
+                    elif 'взлети' in words_list:
+                        print(text)
+                    elif 'приземлись' in words_list:
+                        print(text)
             except:
                 continue
 
@@ -81,54 +115,57 @@ class Gests_Recognition(QtCore.QObject):
         return Gests_Recognition.gest_map[val]
 
     def run(self):
-        self.model = load_model("gestures_model.h5", compile=False)
-        self.drawingModule = mediapipe.solutions.drawing_utils
-        self.handsModule = mediapipe.solutions.hands
+        model = load_model("gestures_model.h5", compile=False)
+        drawingModule = mediapipe.solutions.drawing_utils
+        handsModule = mediapipe.solutions.hands
 
-        self.capture = cv2.VideoCapture(0)
+        capture = cv2.VideoCapture(0)
 
-        with self.handsModule.Hands(static_image_mode=False, min_detection_confidence=0.7, min_tracking_confidence=0.7,
-                               max_num_hands=1) as self.hands:
+        with handsModule.Hands(static_image_mode=False, min_detection_confidence=0.7, min_tracking_confidence=0.7,
+                               max_num_hands=1) as hands:
             while self.running:
                 # frame == 480 640
-                self.ret, self.frame = self.capture.read()
-                self.results = self.hands.process(cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB))
+                ret, frame = capture.read()
+                if ret:
+                    processed_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                    height_frame, width_frame, channels_frame = frame.shape
 
-                cv2.imshow('Hands recognizer', self.frame)
-                self.k = cv2.waitKey(1)
-                self.height_frame, self.width_frame, self.channels_frame = self.frame.shape
+                    results = hands.process(processed_frame)
 
-                if self.results.multi_hand_landmarks != None:
-                    self.new_row = []
-                    for self.handLandmarks in self.results.multi_hand_landmarks:
-                        try:
-                            for self.point in self.handsModule.HandLandmark:
-                                self.normalizedLandmark = self.handLandmarks.landmark[self.point]
-                                self.pixelCoordinatesLandmark = self.drawingModule._normalized_to_pixel_coordinates(
-                                    self.normalizedLandmark.x,
-                                    self.normalizedLandmark.y,
-                                    self.width_frame, self.height_frame)
-                                self.new_row.extend(list(self.pixelCoordinatesLandmark))
-                        except TypeError:
-                            break
+                    cv2.imshow('Hands recognizer', frame)
+                    k = cv2.waitKey(1)
 
-                    if self.new_row:
-                        try:
-                            self.data = []
-                            self.data.append(self.new_row)
-                            if len(self.data[self.data.index(self.new_row)]) > 2:
-                                self.df = pd.DataFrame(self.data, columns=Gests_Recognition.columns)
-                                self.df = self.df.fillna(0)
-                                self.df = self.df / 640
-                                self.pred = self.model.predict(self.df)
-                                self.move_code = np.argmax(self.pred[0])
-                                self.user_move_name = self.mapper(self.move_code)
-                                print(self.user_move_name)
-                        except ValueError:
-                            continue
+                    if results.multi_hand_landmarks != None:
+                        new_row = []
+                        for handLandmarks in results.multi_hand_landmarks:
+                            try:
+                                for point in handsModule.HandLandmark:
+                                    normalizedLandmark = handLandmarks.landmark[point]
+                                    pixelCoordinatesLandmark = drawingModule._normalized_to_pixel_coordinates(
+                                        normalizedLandmark.x,
+                                        normalizedLandmark.y,
+                                        width_frame, height_frame)
+                                    new_row.extend(list(pixelCoordinatesLandmark))
+                            except TypeError:
+                                break
+
+                        if new_row:
+                            try:
+                                data = []
+                                data.append(new_row)
+                                if len(data[data.index(new_row)]) > 2:
+                                    df = pd.DataFrame(data, columns=Gests_Recognition.columns)
+                                    df = df.fillna(0)
+                                    df = df / 640
+                                    pred = model.predict(df)
+                                    move_code = np.argmax(pred[0])
+                                    user_move_name = self.mapper(move_code)
+                                    print(user_move_name)
+                            except ValueError:
+                                continue
 
             cv2.destroyAllWindows()
-            self.capture.release()
+            capture.release()
 
 
 class Ui_MainWindow(object):
@@ -136,31 +173,41 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         # 363x346px
         MainWindow.setObjectName("Drone control")
-        MainWindow.setFixedSize(363, 500)
+        MainWindow.setFixedSize(720, 500)
         MainWindow.setWindowIcon(QIcon('images/drone.png'))
         MainWindow.setStyleSheet("background-color: #212329; ")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
 
         self.voice_btn = QtWidgets.QPushButton(self.centralwidget)
-        self.voice_btn.setGeometry(QtCore.QRect(100, 90, 161, 151))
+        self.voice_btn.setGeometry(QtCore.QRect(80, 60, 160, 150))
         self.voice_btn.setObjectName("voiceButton")
-        self.voice_btn.clicked.connect(self.voice_recognition)
         self.voice_btn.setCheckable(True)
+        self.voice_btn.clicked.connect(self.voice_recognition)
         self.voice_btn.setStyleSheet("QPushButton{background-color: #aae053;\n"
         "border-radius: 60%;\nbackground-image: url('images/micro.png');\n"
         "background-repeat: no-repeat;\nbackground-position: center;}\n"
         "QPushButton:hover{background-color: #81eb3b;}")
 
         self.cam_btn = QtWidgets.QPushButton(self.centralwidget)
-        self.cam_btn.setGeometry(QtCore.QRect(100, 280, 161, 151))
+        self.cam_btn.setGeometry(QtCore.QRect(280, 60, 160, 150))
         self.cam_btn.setObjectName("cam_btn")
         self.cam_btn.setCheckable(True)
         self.cam_btn.clicked.connect(self.gest_recognition)
         self.cam_btn.setStyleSheet("QPushButton{background-color: #aae053;\n"
-                                        "border-radius: 60%;\nbackground-image: url('images/camera.png');\n"
+                                        "border-radius: 60%;\nbackground-image: url('images/hand.png');\n"
                                         "background-repeat: no-repeat;\nbackground-position: center;}\n"
                                         "QPushButton:hover{background-color: #81eb3b;}")
+
+        self.control_btn = QtWidgets.QPushButton(self.centralwidget)
+        self.control_btn.setGeometry(QtCore.QRect(480, 60, 160, 150))
+        self.control_btn.setObjectName("control_btn")
+        self.control_btn.setCheckable(True)
+        self.control_btn.clicked.connect(self.kboard_recognition)
+        self.control_btn.setStyleSheet("QPushButton{background-color: #aae053;\n"
+                                   "border-radius: 60%;\nbackground-image: url('images/pult.png');\n"
+                                   "background-repeat: no-repeat;\nbackground-position: center;}\n"
+                                   "QPushButton:hover{background-color: #81eb3b;}")
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
@@ -181,7 +228,7 @@ class Ui_MainWindow(object):
     def voice_recognition(self):
         if self.voice_btn.isChecked():
             self.voice_btn.setStyleSheet("QPushButton{background-color: red;\n"
-                                         "border-radius: 60%;\nbackground-image: url('images/micro.png');\n"
+                                         "border-radius: 60%;\nbackground-image: url('images/pause.png');\n"
                                          "background-repeat: no-repeat;\nbackground-position: center;}\n")
             self.thread_voice = QtCore.QThread()
             self.v_recog = Voice_Recognition()
@@ -195,7 +242,7 @@ class Ui_MainWindow(object):
                                          "background-repeat: no-repeat;\nbackground-position: center;}\n"
                                          "QPushButton:hover{background-color: #81eb3b;}")
             self.v_recog.running = False
-            self.thread.terminate()
+            self.thread_voice.terminate()
 
     def gest_recognition(self):
         if self.cam_btn.isChecked():
@@ -211,11 +258,32 @@ class Ui_MainWindow(object):
 
         else:
             self.cam_btn.setStyleSheet("QPushButton{background-color: #aae053;\n"
-                                       "border-radius: 60%;\nbackground-image: url('images/camera.png');\n"
+                                       "border-radius: 60%;\nbackground-image: url('images/hand.png');\n"
                                        "background-repeat: no-repeat;\nbackground-position: center;}\n"
                                        "QPushButton:hover{background-color: #81eb3b;}")
             self.g_recog.running = False
             self.thread_gests.terminate()
+
+    def kboard_recognition(self):
+        if self.control_btn.isChecked():
+            self.control_btn.setStyleSheet("QPushButton{background-color: red;\n"
+                                       "border-radius: 60%;\nbackground-image: url('images/pause.png');\n"
+                                       "background-repeat: no-repeat;\nbackground-position: center;}\n")
+            self.thread_kboard = QtCore.QThread()
+            self.k_recog = Keybord_Recognition()
+
+            self.k_recog.moveToThread(self.thread_kboard)
+            self.thread_kboard.started.connect(self.k_recog.run)
+            self.thread_kboard.start()
+
+        else:
+            self.control_btn.setStyleSheet("QPushButton{background-color: #aae053;\n"
+                                       "border-radius: 60%;\nbackground-image: url('images/pult.png');\n"
+                                       "background-repeat: no-repeat;\nbackground-position: center;}\n"
+                                       "QPushButton:hover{background-color: #81eb3b;}")
+
+            keyboard.send('q')
+            self.thread_kboard.terminate()
 
 
 if __name__ == "__main__":
