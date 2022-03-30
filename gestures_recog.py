@@ -73,3 +73,4 @@ def gests_recog():
 
     cv2.destroyAllWindows()
     capture.release()
+
