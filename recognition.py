@@ -9,7 +9,7 @@ from PyQt5.QtGui import QIcon, QImage, QPixmap
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtMultimediaWidgets import QVideoWidget
-from PyQt5.QtWidgets import QVBoxLayout, QLabel
+from PyQt5.QtWidgets import QVBoxLayout, QLabel, QGridLayout
 from tensorflow.keras.models import load_model
 
 
@@ -169,16 +169,14 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         # 363x346px
         MainWindow.setObjectName("Drone control")
-        MainWindow.setFixedSize(800, 800)
+        MainWindow.setFixedSize(800, 740)
         MainWindow.setWindowIcon(QIcon('images/drone.png'))
         MainWindow.setStyleSheet("background-color: #212329; ")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
 
-        self.horizontalLayout = QtWidgets.QHBoxLayout(self.centralwidget)
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
-        self.verticalLayout.setObjectName("verticalLayout")
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.view_cam)
 
         self.voice_btn = QtWidgets.QPushButton(self.centralwidget)
         self.voice_btn.setFixedSize(150, 150)
@@ -189,7 +187,7 @@ class Ui_MainWindow(object):
         "border-radius: 60%;\nbackground-image: url('images/micro.png');\n"
         "background-repeat: no-repeat;\nbackground-position: center;}\n"
         "QPushButton:hover{background-color: #81eb3b;}")
-        self.horizontalLayout.addWidget(self.voice_btn)
+        self.voice_btn.move(80, 40)
 
         self.cam_btn = QtWidgets.QPushButton(self.centralwidget)
         self.cam_btn.setFixedSize(150, 150)
@@ -199,10 +197,7 @@ class Ui_MainWindow(object):
                                         "border-radius: 60%;\nbackground-image: url('images/hand.png');\n"
                                         "background-repeat: no-repeat;\nbackground-position: center;}\n"
                                         "QPushButton:hover{background-color: #81eb3b;}")
-        self.horizontalLayout.addWidget(self.cam_btn)
-
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.view_cam)
+        self.cam_btn.move(330, 40)
 
         self.control_btn = QtWidgets.QPushButton(self.centralwidget)
         self.control_btn.setFixedSize(150, 150)
@@ -213,15 +208,14 @@ class Ui_MainWindow(object):
                                    "border-radius: 60%;\nbackground-image: url('images/pult.png');\n"
                                    "background-repeat: no-repeat;\nbackground-position: center;}\n"
                                    "QPushButton:hover{background-color: #81eb3b;}")
-        self.horizontalLayout.addWidget(self.control_btn)
+        self.control_btn.move(580, 40)
 
         self.video_label = QtWidgets.QLabel(self.centralwidget)
         self.video_label.setObjectName("video_label")
         self.video_label.setFixedSize(640, 480)
-        self.verticalLayout.addWidget(self.video_label)
-        self.horizontalLayout.addWidget(self.video_label)
         self.video_label.setStyleSheet("border: 5px solid black;"
-                                       "background-color: white;")
+                                       "background-color: #d8e6e4;")
+        self.video_label.move(80, 230)
 
         self.model = load_model("gestures_model.h5", compile=False)
         self.drawingModule = mediapipe.solutions.drawing_utils
