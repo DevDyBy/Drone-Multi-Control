@@ -175,8 +175,11 @@ class Ui_MainWindow(object):
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
 
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.view_cam)
+        self.timer_gest = QTimer()
+        self.timer_gest.timeout.connect(self.view_cam_gest)
+
+        self.timer_cam = QTimer()
+        self.timer_cam.timeout.connect(self.view_cam)
 
         self.voice_btn = QtWidgets.QPushButton(self.centralwidget)
         self.voice_btn.setFixedSize(150, 150)
@@ -192,7 +195,7 @@ class Ui_MainWindow(object):
         self.cam_btn = QtWidgets.QPushButton(self.centralwidget)
         self.cam_btn.setFixedSize(150, 150)
         self.cam_btn.setObjectName("cam_btn")
-        self.cam_btn.clicked.connect(self.control_timer)
+        self.cam_btn.clicked.connect(self.control_timer_gest)
         self.cam_btn.setStyleSheet("QPushButton{background-color: #aae053;\n"
                                         "border-radius: 60%;\nbackground-image: url('images/hand.png');\n"
                                         "background-repeat: no-repeat;\nbackground-position: center;}\n"
@@ -291,6 +294,8 @@ class Ui_MainWindow(object):
             self.cam_btn.setEnabled(False)
             self.voice_btn.setEnabled(False)
 
+            self.control_timer()
+
             self.thread_kboard = QtCore.QThread()
             self.k_recog = Keybord_Recognition()
 
@@ -306,10 +311,12 @@ class Ui_MainWindow(object):
             self.cam_btn.setEnabled(True)
             self.voice_btn.setEnabled(True)
 
+            self.control_timer()
+
             self.k_recog.stop()
             self.thread_kboard.terminate()
 
-    def view_cam(self):
+    def view_cam_gest(self):
         ret, frame = self.capture.read()
         if ret:
             processed_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -320,9 +327,6 @@ class Ui_MainWindow(object):
             with self.handsModule.Hands(static_image_mode=False, min_detection_confidence=0.7, min_tracking_confidence=0.7,
                                    max_num_hands=1) as hands:
                 # frame == 480 640
-                processed_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                height_frame, width_frame, channels_frame = frame.shape
-
                 results = hands.process(processed_frame)
 
                 k = cv2.waitKey(1)
@@ -364,8 +368,8 @@ class Ui_MainWindow(object):
                         self.counter = self.counter - 30
                 self.video_label.setPixmap(QPixmap.fromImage(q_img))
 
-    def control_timer(self):
-        if not self.timer.isActive():
+    def control_timer_gest(self):
+        if not self.timer_gest.isActive():
             self.cam_btn.setStyleSheet("QPushButton{background-color: red;\n"
                                        "border-radius: 60%;\nbackground-image: url('images/pause.png');\n"
                                        "background-repeat: no-repeat;\nbackground-position: center;}\n")
@@ -373,9 +377,9 @@ class Ui_MainWindow(object):
             self.counter = 0
             self.voice_btn.setEnabled(False)
             self.control_btn.setEnabled(False)
-            self.timer.start(20)
+            self.timer_gest.start(20)
         else:
-            self.timer.stop()
+            self.timer_gest.stop()
             self.capture.release()
             self.voice_btn.setEnabled(True)
             self.control_btn.setEnabled(True)
@@ -383,6 +387,23 @@ class Ui_MainWindow(object):
                                        "border-radius: 60%;\nbackground-image: url('images/hand.png');\n"
                                        "background-repeat: no-repeat;\nbackground-position: center;}\n"
                                        "QPushButton:hover{background-color: #81eb3b;}")
+
+    def view_cam(self):
+        ret, frame = self.capture.read()
+        if ret:
+            processed_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            height_frame, width_frame, channels_frame = frame.shape
+            step = channels_frame * width_frame
+            q_img = QImage(frame.data, width_frame, height_frame, step, QImage.Format_BGR888)
+            self.video_label.setPixmap(QPixmap.fromImage(q_img))
+
+    def control_timer(self):
+        if not self.timer_cam.isActive():
+            self.capture = cv2.VideoCapture(0)
+            self.timer_cam.start(20)
+        else:
+            self.timer_cam.stop()
+            self.capture.release()
 
 
 if __name__ == "__main__":
