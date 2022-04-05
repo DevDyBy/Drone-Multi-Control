@@ -8,13 +8,6 @@ import numpy as np
 
 
 class Gests_Recognition(QtCore.QObject):
-
-    def __init__(self, cap, vid_label, count):
-        super(Gests_Recognition, self).__init__()
-        self.vid_label = vid_label
-        self.cap = cap
-        self.count = count
-
     gest_map = {
         0: "up",
         1: "down",
@@ -34,58 +27,64 @@ class Gests_Recognition(QtCore.QObject):
     drawingModule = mediapipe.solutions.drawing_utils
     handsModule = mediapipe.solutions.hands
 
+    def __init__(self, cap, vid_label, count):
+        super(Gests_Recognition, self).__init__()
+        self.vid_label = vid_label
+        self.cap = cap
+        self.count = count
+
     def mapper(self, val):
         return Gests_Recognition.gest_map[val]
 
     def run(self):
-        ret, frame = self.cap.read()
-        if ret:
-            processed_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            height_frame, width_frame, channels_frame = frame.shape
-            step = channels_frame * width_frame
-            q_img = QImage(frame.data, width_frame, height_frame, step, QImage.Format_BGR888)
+        self.ret, self.frame = self.cap.read()
+        if self.ret:
+            self.processed_frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB)
+            self.height_frame, self.width_frame, self.channels_frame = self.frame.shape
+            self.step = self.channels_frame * self.width_frame
+            self.q_img = QImage(self.frame.data, self.width_frame, self.height_frame, self.step, QImage.Format_BGR888)
 
             with self.handsModule.Hands(static_image_mode=False, min_detection_confidence=0.7,
                                         min_tracking_confidence=0.7,
                                         max_num_hands=1) as hands:
                 # frame == 480 640
-                results = hands.process(processed_frame)
+                self.results = hands.process(self.processed_frame)
 
-                k = cv2.waitKey(1)
+                self.k = cv2.waitKey(1)
 
-                if results.multi_hand_landmarks != None:
+                if self.results.multi_hand_landmarks != None:
                     self.count += 1
 
-                    for handLandmarks in results.multi_hand_landmarks:
-                        self.drawingModule.draw_landmarks(frame, handLandmarks, self.handsModule.HAND_CONNECTIONS)
+                    for handLandmarks in self.results.multi_hand_landmarks:
+                        self.drawingModule.draw_landmarks(self.frame, handLandmarks, self.handsModule.HAND_CONNECTIONS)
 
                     if self.count == 30:
-                        new_row = []
-                        for handLandmarks in results.multi_hand_landmarks:
+                        self.new_row = []
+                        for handLandmarks in self.results.multi_hand_landmarks:
                             try:
                                 for point in self.handsModule.HandLandmark:
-                                    normalizedLandmark = handLandmarks.landmark[point]
-                                    pixelCoordinatesLandmark = self.drawingModule._normalized_to_pixel_coordinates(
-                                        normalizedLandmark.x,
-                                        normalizedLandmark.y,
-                                        width_frame, height_frame)
-                                    new_row.extend(list(pixelCoordinatesLandmark))
+                                    self.normalizedLandmark = handLandmarks.landmark[point]
+                                    self.pixelCoordinatesLandmark = self.drawingModule._normalized_to_pixel_coordinates(
+                                        self.normalizedLandmark.x,
+                                        self.normalizedLandmark.y,
+                                        self.width_frame, self.height_frame)
+                                    self.new_row.extend(list(self.pixelCoordinatesLandmark))
                             except TypeError:
                                 break
 
-                        if new_row:
+                        if self.new_row:
                             try:
-                                data = []
-                                data.append(new_row)
-                                if len(data[data.index(new_row)]) > 2:
-                                    df = pd.DataFrame(data, columns=Gests_Recognition.columns)
-                                    df = df.fillna(0)
-                                    df = df / 640
-                                    pred = self.model.predict(df)
-                                    move_code = np.argmax(pred[0])
-                                    user_move_name = self.mapper(move_code)
-                                    print(user_move_name)
+                                self.data = []
+                                self.data.append(self.new_row)
+                                if len(self.data[self.data.index(self.new_row)]) > 2:
+                                    self.df = pd.DataFrame(self.data, columns=self.columns)
+                                    self.df = self.df.fillna(0)
+                                    self.df = self.df / 640
+                                    self.pred = self.model.predict(self.df)
+                                    self.move_code = np.argmax(self.pred[0])
+                                    self.user_move_name = self.mapper(self.move_code)
+                                    print(self.user_move_name)
                             except ValueError:
                                 return
                         self.count = self.count - 30
-                self.vid_label.setPixmap(QPixmap.fromImage(q_img))
+                self.vid_label.setPixmap(QPixmap.fromImage(self.q_img))

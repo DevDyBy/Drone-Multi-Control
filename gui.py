@@ -56,9 +56,9 @@ class Ui_MainWindow(object):
                                    "QPushButton:hover{background-color: #81eb3b;}")
         self.control_btn.move(480, 40)
 
-        # self.voice_btn.setEnabled(False)
-        # self.cam_btn.setEnabled(False)
-        # self.control_btn.setEnabled(False)
+        self.voice_btn.setEnabled(False)
+        self.cam_btn.setEnabled(False)
+        self.control_btn.setEnabled(False)
 
         self.connect_btn = QtWidgets.QPushButton(self.centralwidget)
         self.connect_btn.setFixedSize(150, 150)
@@ -93,9 +93,6 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("Drone control", "Drone control"))
 
-    def mapper(self, val):
-        return Gests_Recognition.gest_map[val]
-
     def connecter(self):
         if self.connect_btn.isChecked():
             self.voice_btn.setStyleSheet("QPushButton{background-color: red;\n"
@@ -105,8 +102,8 @@ class Ui_MainWindow(object):
             self.cam_btn.setEnabled(True)
             self.control_btn.setEnabled(True)
 
-            self.tello = djitellopy.Tello()
-            self.tello.connect()
+            # self.tello = djitellopy.Tello()
+            # self.tello.connect()
         else:
             self.connect_btn.setStyleSheet("QPushButton{background-color: #aae053;\n"
                                            "border-radius: 60%;\nbackground-image: url('images/connect.png');\n"
@@ -116,8 +113,8 @@ class Ui_MainWindow(object):
             self.cam_btn.setEnabled(False)
             self.control_btn.setEnabled(False)
 
-            self.tello.land()
-            self.tello.end()
+            # self.tello.land()
+            # self.tello.end()
 
     def voice_recognition(self):
         if self.voice_btn.isChecked():
