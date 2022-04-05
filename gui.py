@@ -64,6 +64,7 @@ class Ui_MainWindow(object):
         self.connect_btn.setFixedSize(150, 150)
         self.connect_btn.setObjectName("connect_btn")
         self.connect_btn.setCheckable(True)
+        self.connect_btn.clicked.connect(self.connecter)
         self.connect_btn.setStyleSheet("QPushButton{background-color: #aae053;\n"
                                        "border-radius: 60%;\nbackground-image: url('images/connect.png');\n"
                                        "background-repeat: no-repeat;\nbackground-position: center;}\n"
@@ -95,15 +96,16 @@ class Ui_MainWindow(object):
 
     def connecter(self):
         if self.connect_btn.isChecked():
-            self.voice_btn.setStyleSheet("QPushButton{background-color: red;\n"
+            self.connect_btn.setStyleSheet("QPushButton{background-color: red;\n"
                                          "border-radius: 60%;\nbackground-image: url('images/pause.png');\n"
                                          "background-repeat: no-repeat;\nbackground-position: center;}\n")
             self.voice_btn.setEnabled(True)
             self.cam_btn.setEnabled(True)
             self.control_btn.setEnabled(True)
 
-            # self.tello = djitellopy.Tello()
-            # self.tello.connect()
+            self.tello = djitellopy.Tello()
+            self.tello.connect()
+            self.tello.takeoff()
         else:
             self.connect_btn.setStyleSheet("QPushButton{background-color: #aae053;\n"
                                            "border-radius: 60%;\nbackground-image: url('images/connect.png');\n"
@@ -113,8 +115,8 @@ class Ui_MainWindow(object):
             self.cam_btn.setEnabled(False)
             self.control_btn.setEnabled(False)
 
-            # self.tello.land()
-            # self.tello.end()
+            self.tello.land()
+            self.tello.end()
 
     def voice_recognition(self):
         if self.voice_btn.isChecked():
@@ -126,7 +128,7 @@ class Ui_MainWindow(object):
             self.control_btn.setEnabled(False)
 
             self.thread_voice = QtCore.QThread()
-            self.v_recog = Voice_Recognition()
+            self.v_recog = Voice_Recognition(self.tello)
 
             self.v_recog.moveToThread(self.thread_voice)
             self.thread_voice.started.connect(self.v_recog.run)
@@ -155,7 +157,7 @@ class Ui_MainWindow(object):
             self.control_timer()
 
             self.thread_kboard = QtCore.QThread()
-            self.k_recog = Keybord_Recognition()
+            self.k_recog = Keybord_Recognition(self.tello)
 
             self.k_recog.moveToThread(self.thread_kboard)
             self.thread_kboard.started.connect(self.k_recog.run)
@@ -179,7 +181,7 @@ class Ui_MainWindow(object):
             self.cam_btn.setStyleSheet("QPushButton{background-color: red;\n"
                                        "border-radius: 60%;\nbackground-image: url('images/pause.png');\n"
                                        "background-repeat: no-repeat;\nbackground-position: center;}\n")
-            self.capture = cv2.VideoCapture(0)
+            self.capture = self.tello.get_video_capture()
             self.counter = 0
 
             self.gests = Gests_Recognition(self.capture, self.video_label, self.counter)
@@ -212,7 +214,7 @@ class Ui_MainWindow(object):
 
     def control_timer(self):
         if not self.timer_cam.isActive():
-            self.capture = cv2.VideoCapture(0)
+            self.capture = self.tello.get_video_capture()
             self.timer_cam.start(20)
         else:
             self.timer_cam.stop()

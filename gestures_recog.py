@@ -27,10 +27,11 @@ class Gests_Recognition(QtCore.QObject):
     drawingModule = mediapipe.solutions.drawing_utils
     handsModule = mediapipe.solutions.hands
 
-    def __init__(self, cap, vid_label, count):
+    def __init__(self, drone, cap, vid_label, count):
         super(Gests_Recognition, self).__init__()
-        self.vid_label = vid_label
+        self.drone = drone
         self.cap = cap
+        self.vid_label = vid_label
         self.count = count
 
     def mapper(self, val):
@@ -82,8 +83,26 @@ class Gests_Recognition(QtCore.QObject):
                                     self.df = self.df / 640
                                     self.pred = self.model.predict(self.df)
                                     self.move_code = np.argmax(self.pred[0])
-                                    self.user_move_name = self.mapper(self.move_code)
-                                    print(self.user_move_name)
+                                    self.user_move = self.mapper(self.move_code)
+
+                                    if self.user_move == 'up':
+                                        self.drone.move_up(30)
+
+                                    elif self.user_move == 'down':
+                                        self.drone.move_down(30)
+
+                                    elif self.user_move == 'right':
+                                        self.drone.move_right(30)
+
+                                    elif self.user_move == 'left':
+                                        self.drone.move_left(30)
+
+                                    elif self.user_move == 'forward':
+                                        self.drone.move_forward(30)
+
+                                    elif self.user_move == 'back':
+                                        self.drone.move_back(30)
+
                             except ValueError:
                                 return
                         self.count = self.count - 30
