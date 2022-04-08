@@ -86,22 +86,22 @@ class Gests_Recognition(QtCore.QObject):
                                     self.user_move = self.mapper(self.move_code)
 
                                     if self.user_move == 'up':
-                                        self.drone.move_up(30)
+                                        self.drone.move_up(50)
 
                                     elif self.user_move == 'down':
-                                        self.drone.move_down(30)
+                                        self.drone.move_down(50)
 
                                     elif self.user_move == 'right':
-                                        self.drone.move_right(30)
+                                        self.drone.move_right(50)
 
                                     elif self.user_move == 'left':
-                                        self.drone.move_left(30)
+                                        self.drone.move_left(50)
 
                                     elif self.user_move == 'forward':
-                                        self.drone.move_forward(30)
+                                        self.drone.move_forward(50)
 
                                     elif self.user_move == 'back':
-                                        self.drone.move_back(30)
+                                        self.drone.move_back(50)
 
                             except ValueError:
                                 return
