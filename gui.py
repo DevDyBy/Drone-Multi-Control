@@ -4,6 +4,7 @@ from PyQt5 import QtCore, QtWidgets
 from gestures_recog import Gests_Recognition
 from voice_recog import Voice_Recognition
 from bord_control import Keybord_Recognition
+from drone_connect import Drone_Connection
 import cv2
 import djitellopy
 
@@ -56,9 +57,9 @@ class Ui_MainWindow(object):
                                    "QPushButton:hover{background-color: #81eb3b;}")
         self.control_btn.move(480, 40)
 
-        self.voice_btn.setEnabled(False)
-        self.cam_btn.setEnabled(False)
-        self.control_btn.setEnabled(False)
+        # self.voice_btn.setEnabled(False)
+        # self.cam_btn.setEnabled(False)
+        # self.control_btn.setEnabled(False)
 
         self.connect_btn = QtWidgets.QPushButton(self.centralwidget)
         self.connect_btn.setFixedSize(150, 150)
@@ -99,24 +100,30 @@ class Ui_MainWindow(object):
             self.connect_btn.setStyleSheet("QPushButton{background-color: red;\n"
                                          "border-radius: 60%;\nbackground-image: url('images/pause.png');\n"
                                          "background-repeat: no-repeat;\nbackground-position: center;}\n")
-            self.voice_btn.setEnabled(True)
-            self.cam_btn.setEnabled(True)
-            self.control_btn.setEnabled(True)
+
+            # self.voice_btn.setEnabled(True)
+            # self.cam_btn.setEnabled(True)
+            # self.control_btn.setEnabled(True)
 
             self.tello = djitellopy.Tello()
-            self.tello.connect()
-            self.tello.takeoff()
+
+            self.thread_connect = QtCore.QThread()
+            self.drone_connect = Drone_Connection(self.tello)
+
+            self.drone_connect.moveToThread(self.thread_connect)
+            self.thread_connect.started.connect(self.drone_connect.run)
+            self.thread_connect.start()
         else:
             self.connect_btn.setStyleSheet("QPushButton{background-color: #aae053;\n"
                                            "border-radius: 60%;\nbackground-image: url('images/connect.png');\n"
                                            "background-repeat: no-repeat;\nbackground-position: center;}\n"
                                            "QPushButton:hover{background-color: #81eb3b;}")
-            self.voice_btn.setEnabled(False)
-            self.cam_btn.setEnabled(False)
-            self.control_btn.setEnabled(False)
+            # self.voice_btn.setEnabled(False)
+            # self.cam_btn.setEnabled(False)
+            # self.control_btn.setEnabled(False)
 
-            self.tello.land()
-            self.tello.end()
+            self.drone_connect.stop()
+            self.thread_connect.terminate()
 
     def voice_recognition(self):
         if self.voice_btn.isChecked():
@@ -181,10 +188,11 @@ class Ui_MainWindow(object):
             self.cam_btn.setStyleSheet("QPushButton{background-color: red;\n"
                                        "border-radius: 60%;\nbackground-image: url('images/pause.png');\n"
                                        "background-repeat: no-repeat;\nbackground-position: center;}\n")
+            self.tello.streamon()
             self.capture = self.tello.get_video_capture()
             self.counter = 0
 
-            self.gests = Gests_Recognition(self.capture, self.video_label, self.counter)
+            self.gests = Gests_Recognition(self.tello, self.capture, self.video_label, self.counter)
             self.timer_gest.timeout.connect(self.gests.run)
 
             self.voice_btn.setEnabled(False)
@@ -193,6 +201,7 @@ class Ui_MainWindow(object):
             self.timer_gest.start(20)
         else:
             self.timer_gest.stop()
+            self.tello.streamoff()
             self.capture.release()
 
             self.voice_btn.setEnabled(True)
@@ -214,10 +223,12 @@ class Ui_MainWindow(object):
 
     def control_timer(self):
         if not self.timer_cam.isActive():
+            self.tello.streamon()
             self.capture = self.tello.get_video_capture()
             self.timer_cam.start(20)
         else:
             self.timer_cam.stop()
+            self.tello.streamoff()
             self.capture.release()
 
 
@@ -229,6 +240,3 @@ if __name__ == "__main__":
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
-
-
-
