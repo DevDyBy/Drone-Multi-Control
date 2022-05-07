@@ -4,35 +4,28 @@ import keyboard
 
 class Keybord_Recognition(QtCore.QObject):
 
-    def init(self, drone):
-        super(Keybord_Recognition, self).init()
-        self.drone = drone
+    def __init__(self):
+        super(Keybord_Recognition, self).__init__()
 
     def key_recog(self, k):
         if k.event_type == 'down':
             if k.name == 'w':
-                self.drone.move_forward(200)
+                print('forward')
 
             elif k.name == 's':
-                self.drone.move_back(50)
+                print('back')
 
             elif k.name == 'a':
-                self.drone.move_left(50)
+                print('left')
 
             elif k.name == 'd':
-                self.drone.move_right(50)
+                print('right')
 
             elif k.name == 'z':
-                self.drone.move_up(50)
+                print('up')
 
             elif k.name == 'x':
-                self.drone.move_down(50)
-
-            elif k.name == 'e':
-                self.drone.rotate_clockwise(30)
-
-            elif k.name == 'r':
-                self.drone.rotate_counter_clockwise(30)
+                print('down')
 
     def run(self):
         keyboard.hook(self.key_recog)

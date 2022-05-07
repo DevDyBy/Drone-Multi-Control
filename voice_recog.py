@@ -4,42 +4,46 @@ import speech_recognition as sr
 
 class Voice_Recognition(QtCore.QObject):
 
-    def init(self, drone):
-        super(Voice_Recognition, self).init()
+    def __init__(self):
+        super(Voice_Recognition, self).__init__()
         self.running = True
-        self.drone = drone
 
     def run(self):
         while self.running:
             try:
-                self.rec = sr.Recognizer()
-                self.mic = sr.Microphone(device_index=1)
+                rec = sr.Recognizer()
+                mic = sr.Microphone(device_index=1)
 
-                with self.mic as source:
-                    self.audio = self.rec.listen(source)
-                    self.text = self.rec.recognize_google(self.audio, language='ru-RU').lower()
+                with mic as source:
+                    audio = rec.listen(source)
+                    text = rec.recognize_google(audio, language='ru-RU').lower()
 
-                    self.words_list = self.text.split()
-                    self.num_list = [int(word) for word in self.words_list if word.isnumeric()]
+                    words_list = text.split()
+                    num_list = [int(word) for word in words_list if word.isnumeric()]
 
-                    if 'повернись' in self.words_list and self.num_list:
-                        if 'по' in self.words_list:
-                            self.drone.rotate_clockwise(self.num_list[0])
-                        elif 'против' in self.words_list:
-                            self.drone.rotate_counter_clockwise(self.num_list[0])
+                    if 'повернись' in words_list and num_list:
+                        if 'по' in words_list:
+                            print(text)
+                        elif 'против' in words_list:
+                            print(text)
 
-                    elif 'лети' in self.words_list and self.num_list:
-                        if 'вперёд' in self.words_list:
-                            self.drone.move_forward(self.num_list[0])
-                        elif 'назад' in self.words_list:
-                            self.drone.move_back(self.num_list[0])
-                        elif 'влево' in self.words_list:
-                            self.drone.move_left(self.num_list[0])
-                        elif 'вправо' in self.words_list:
-                            self.drone.move_right(self.num_list[0])
-                        elif 'вверх' in self.words_list:
-                            self.drone.move_up(self.num_list[0])
-                        elif 'вниз' in self.words_list:
-                            self.drone.move_down(self.num_list[0])
+                    elif 'лети' in words_list and num_list:
+                        if 'вперёд' in words_list:
+                            print(text)
+                        elif 'назад' in words_list:
+                            print(text)
+                        elif 'влево' in words_list:
+                            print(text)
+                        elif 'вправо' in words_list:
+                            print(text)
+                        elif 'вверх' in words_list:
+                            print(text)
+                        elif 'вниз' in words_list:
+                            print(text)
+
+                    elif 'взлети' in words_list:
+                        print(text)
+                    elif 'приземлись' in words_list:
+                        print(text)
             except:
                 continue

@@ -1,6 +1,6 @@
 from PyQt5 import QtCore
-from keras.models import load_model
 from PyQt5.QtGui import QImage, QPixmap
+from tensorflow.python.keras.models import load_model
 import mediapipe
 import cv2
 import pandas as pd
@@ -27,9 +27,8 @@ class Gests_Recognition(QtCore.QObject):
     drawingModule = mediapipe.solutions.drawing_utils
     handsModule = mediapipe.solutions.hands
 
-    def __init__(self, drone, cap, vid_label, count):
+    def __init__(self, cap, vid_label, count):
         super(Gests_Recognition, self).__init__()
-        self.drone = drone
         self.cap = cap
         self.vid_label = vid_label
         self.count = count
@@ -85,23 +84,7 @@ class Gests_Recognition(QtCore.QObject):
                                     self.move_code = np.argmax(self.pred[0])
                                     self.user_move = self.mapper(self.move_code)
 
-                                    if self.user_move == 'up':
-                                        self.drone.move_up(50)
-
-                                    elif self.user_move == 'down':
-                                        self.drone.move_down(50)
-
-                                    elif self.user_move == 'right':
-                                        self.drone.move_right(50)
-
-                                    elif self.user_move == 'left':
-                                        self.drone.move_left(50)
-
-                                    elif self.user_move == 'forward':
-                                        self.drone.move_forward(50)
-
-                                    elif self.user_move == 'back':
-                                        self.drone.move_back(50)
+                                    print(self.user_move)
 
                             except ValueError:
                                 return
