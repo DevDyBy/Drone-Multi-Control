@@ -1,11 +1,7 @@
-import pandas as pd
-import numpy as np
 import cv2
-import mediapipe
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QIcon, QImage, QPixmap
 from PyQt5 import QtCore, QtWidgets
-from tensorflow.python.keras.models import load_model
 from bord_control import Keybord_Recognition
 from gestures_recog import Gests_Recognition
 from voice_recog import Voice_Recognition
@@ -121,7 +117,7 @@ class Ui_MainWindow(object):
         В этом методе при нажатии на control_btn создаётся поток, в котором запускается
         объект класса Keyboard_Recognition, а также запускается объект control_timer
         класса QTimer, который выводит в GUI изображение с камеры (путём обновления изображения
-        на video_frame каждые 20 мсек.). При повторном нажатии на cpntrol_btn поток
+        на video_frame каждые 20 мсек.). При повторном нажатии на control_btn поток
         удаляется."""
 
         if self.control_btn.isChecked():
@@ -155,6 +151,13 @@ class Ui_MainWindow(object):
             self.thread_kboard.terminate()
 
     def control_timer_gest(self):
+        """Метод kboard_recognition нужен для распознавания жестов в режиме реального
+        времени. В этом методе при нажатии на cam_btn создаётся поток, в котором запускается
+        объект класса Gests_Recognition, а также запускается объект control_timer_gest
+        класса QTimer, который помогает выводить в GUI изображение с камеры (путём обновления изображения
+        на video_frame каждые 20 мсек.). При повторном нажатии на cam_btn поток
+        удаляется."""
+
         if not self.timer_gest.isActive():
             self.cam_btn.setStyleSheet("QPushButton{background-color: red;\n"
                                        "border-radius: 60%;\nbackground-image: url('images/pause.png');\n"
@@ -182,15 +185,22 @@ class Ui_MainWindow(object):
                                        "QPushButton:hover{background-color: #81eb3b;}")
 
     def view_cam(self):
+        """Метод view_cam нужен для отображения видео (последовательных
+        изображений) в video_label"""
+
         ret, frame = self.capture.read()
         if ret:
-            processed_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             height_frame, width_frame, channels_frame = frame.shape
             step = channels_frame * width_frame
             q_img = QImage(frame.data, width_frame, height_frame, step, QImage.Format_BGR888)
             self.video_label.setPixmap(QPixmap.fromImage(q_img))
 
     def control_timer(self):
+        """Метод control_timer создаёт объект cv2.VideoCapture capture и
+        запускает объект QTimer timer_cam, который каждые 20 милисекунд
+        меняет в video_label изображения, из-за чего в программе отображается
+        видео."""
+
         if not self.timer_cam.isActive():
             self.capture = cv2.VideoCapture(0)
             self.timer_cam.start(20)
@@ -201,7 +211,6 @@ class Ui_MainWindow(object):
 
 if __name__ == "__main__":
     import sys
-
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
