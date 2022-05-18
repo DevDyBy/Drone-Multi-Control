@@ -4,9 +4,10 @@ import speech_recognition as sr
 
 class Voice_Recognition(QtCore.QObject):
 
-    def __init__(self):
-        super(Voice_Recognition, self).__init__()
+    def init(self, drone):
+        super(Voice_Recognition, self).init()
         self.running = True
+        self.drone = drone
 
     def run(self):
         while self.running:
@@ -23,27 +24,22 @@ class Voice_Recognition(QtCore.QObject):
 
                     if 'повернись' in self.words_list and self.num_list:
                         if 'по' in self.words_list:
-                            print(self.text)
+                            self.drone.rotate_clockwise(self.num_list[0])
                         elif 'против' in self.words_list:
-                            print(self.text)
+                            self.drone.rotate_counter_clockwise(self.num_list[0])
 
                     elif 'лети' in self.words_list and self.num_list:
                         if 'вперёд' in self.words_list:
-                            print(self.text)
+                            self.drone.move_forward(self.num_list[0])
                         elif 'назад' in self.words_list:
-                            print(self.text)
+                            self.drone.move_back(self.num_list[0])
                         elif 'влево' in self.words_list:
-                            print(self.text)
+                            self.drone.move_left(self.num_list[0])
                         elif 'вправо' in self.words_list:
-                            print(self.text)
+                            self.drone.move_right(self.num_list[0])
                         elif 'вверх' in self.words_list:
-                            print(self.text)
+                            self.drone.move_up(self.num_list[0])
                         elif 'вниз' in self.words_list:
-                            print(self.text)
-
-                    elif 'взлети' in self.words_list:
-                        print(self.text)
-                    elif 'приземлись' in self.words_list:
-                        print(self.text)
+                            self.drone.move_down(self.num_list[0])
             except:
                 continue

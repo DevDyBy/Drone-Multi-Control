@@ -1,6 +1,6 @@
 from PyQt5 import QtCore
+from keras.models import load_model
 from PyQt5.QtGui import QImage, QPixmap
-from tensorflow.python.keras.models import load_model
 import mediapipe
 import cv2
 import pandas as pd
@@ -27,11 +27,13 @@ class Gests_Recognition(QtCore.QObject):
     drawingModule = mediapipe.solutions.drawing_utils
     handsModule = mediapipe.solutions.hands
 
-    def __init__(self, cap, vid_label, count):
+    def __init__(self, drone, cap, vid_label, count, distance):
         super(Gests_Recognition, self).__init__()
+        self.drone = drone
         self.cap = cap
         self.vid_label = vid_label
         self.count = count
+        self.distance = distance
 
     def mapper(self, val):
         return Gests_Recognition.gest_map[val]
@@ -58,7 +60,7 @@ class Gests_Recognition(QtCore.QObject):
                     for handLandmarks in self.results.multi_hand_landmarks:
                         self.drawingModule.draw_landmarks(self.frame, handLandmarks, self.handsModule.HAND_CONNECTIONS)
 
-                    if self.count == 30:
+                    if self.count == 15:
                         self.new_row = []
                         for handLandmarks in self.results.multi_hand_landmarks:
                             try:
@@ -84,9 +86,25 @@ class Gests_Recognition(QtCore.QObject):
                                     self.move_code = np.argmax(self.pred[0])
                                     self.user_move = self.mapper(self.move_code)
 
-                                    print(self.user_move)
+                                    if self.user_move == 'up':
+                                        self.drone.move_up(self.distance)
+
+                                    elif self.user_move == 'down':
+                                        self.drone.move_down(self.distance)
+
+                                    elif self.user_move == 'right':
+                                        self.drone.move_right(self.distance)
+
+                                    elif self.user_move == 'left':
+                                        self.drone.move_left(self.distance)
+
+                                    elif self.user_move == 'forward':
+                                        self.drone.move_forward(self.distance)
+
+                                    elif self.user_move == 'back':
+                                        self.drone.move_back(self.distance)
 
                             except ValueError:
                                 return
-                        self.count = self.count - 30
+                        self.count = self.count - 15
                 self.vid_label.setPixmap(QPixmap.fromImage(self.q_img))
