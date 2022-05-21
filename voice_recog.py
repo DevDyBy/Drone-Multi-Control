@@ -4,8 +4,8 @@ import speech_recognition as sr
 
 class Voice_Recognition(QtCore.QObject):
 
-    def init(self, drone):
-        super(Voice_Recognition, self).init()
+    def __init__(self, drone):
+        super(Voice_Recognition, self).__init__()
         self.running = True
         self.drone = drone
 

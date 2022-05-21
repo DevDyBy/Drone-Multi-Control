@@ -4,8 +4,8 @@ import keyboard
 
 class Keybord_Recognition(QtCore.QObject):
 
-    def init(self, drone, distance, rotate):
-        super(Keybord_Recognition, self).init()
+    def __init__(self, drone, distance, rotate):
+        super(Keybord_Recognition, self).__init__()
         self.drone = drone
         self.distance = distance
         self.rotate = rotate
