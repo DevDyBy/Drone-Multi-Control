@@ -117,6 +117,11 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("Drone control", "Drone control"))
 
     def connecter(self):
+        """Метод connecter нужен для подключения к дрону. В этом методе при нажатии на
+        connect_btn создаётся объект дрона tello класса Tello(). После этого создаётся поток
+        thread_connect, в котором запускается объект класса Drone_Connection. При повторном
+        нажатии на connect_btn поток завершается."""
+
         if self.connect_btn.isChecked():
             self.connect_btn.setStyleSheet("QPushButton{background-color: red;\n"
                                            "border-radius: 60%;\nbackground-image: url('images/pause.png');\n"
@@ -181,10 +186,8 @@ class Ui_MainWindow(object):
     def kboard_recognition(self):
         """Метод kboard_recognition нужен для получения нажатий по клавиатуры.
         В этом методе при нажатии на control_btn создаётся поток, в котором запускается
-        объект класса Keyboard_Recognition, а также запускается объект control_timer
-        класса QTimer, который выводит в GUI изображение с камеры (путём обновления изображения
-        на video_frame каждые 20 мсек.). При повторном нажатии на control_btn поток
-        удаляется."""
+        объект класса Keyboard_Recognition. При повторном нажатии на control_btn поток
+        завершается."""
 
         if self.control_btn.isChecked():
             self.control_btn.setStyleSheet("QPushButton{background-color: red;\n"
@@ -213,12 +216,12 @@ class Ui_MainWindow(object):
             self.thread_kboard.terminate()
 
     def control_timer_gest(self):
-        """Метод kboard_recognition нужен для распознавания жестов в режиме реального
+        """Метод control_timer_gest нужен для распознавания жестов в режиме реального
         времени. В этом методе при нажатии на cam_btn создаётся поток, в котором запускается
         объект класса Gests_Recognition, а также запускается объект control_timer_gest
         класса QTimer, который помогает выводить в GUI изображение с камеры (путём обновления изображения
         на video_frame каждые 20 мсек.). При повторном нажатии на cam_btn поток
-        удаляется."""
+        завершается."""
 
         if not self.timer_gest.isActive():
             self.cam_btn.setStyleSheet("QPushButton{background-color: red;\n"
@@ -227,7 +230,8 @@ class Ui_MainWindow(object):
             self.capture = cv2.VideoCapture(0)
             self.counter = 0
 
-            self.gests = Gests_Recognition(self.tello, self.capture, self.video_label, self.counter, int(self.distance.text()))
+            self.gests = Gests_Recognition(self.tello, self.capture, self.video_label, self.counter,
+                                           int(self.distance.text()), int(self.rotate.text()))
             self.timer_gest.timeout.connect(self.gests.run)
 
             self.voice_btn.setEnabled(False)

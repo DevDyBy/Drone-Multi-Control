@@ -3,6 +3,8 @@ import speech_recognition as sr
 
 
 class Voice_Recognition(QtCore.QObject):
+    """Класс Voice_Recognition нужен для управления
+    дроном с помощью голоса."""
 
     def __init__(self, drone):
         super(Voice_Recognition, self).__init__()
@@ -10,6 +12,13 @@ class Voice_Recognition(QtCore.QObject):
         self.drone = drone
 
     def run(self):
+        """В методе run создаётся объект rec для распознавния голоса,
+        mic для получение голоса с микрофона. Потом с помощью rec.recognize_google
+        создётся переменная text с текстом с микрофона, после чего text
+        разбивается на слова word_list и числа num_list. После этого
+        по ключевым словам определяется, какую команду хотел использовать
+        пользователь."""
+
         while self.running:
             try:
                 self.rec = sr.Recognizer()

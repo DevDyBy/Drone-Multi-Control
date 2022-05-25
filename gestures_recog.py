@@ -8,40 +8,59 @@ import numpy as np
 
 
 class Gests_Recognition(QtCore.QObject):
+    """Класс Gest_Recognition нужен для распознавания жестов. В качестве
+    полей класса создаются переменные gest_map (для перевода кода жеста в
+    название), columns (для создания небольших таблиц с координатами ориентиров
+    руки), model (для загрузки нейросети), drawingModule и handsModule (для
+    использования библиотеки mediapipe)."""
+
     gest_map = {
         0: "up",
         1: "down",
         2: "right",
         3: "left",
         4: "forward",
-        5: "back"
+        5: "back",
+        6: "rotate"
     }
 
-    columns = ['x11', 'x21', 'x12', 'x22', 'x13', 'x23', 'x14', 'x24', 'x15', 'x25',
-               'x16', 'x26', 'x17', 'x27', 'x18', 'x28', 'x19', 'x29', 'x110', 'x210', 'x111',
-               'x211', 'x112', 'x212', 'x113', 'x213', '114', '214', '115', 'x215', 'x116',
-               'x216', 'x117', 'x217', 'x118', 'x218', 'x119', 'x219', 'x120', 'x220', 'x121',
-               'x221']
+    columns = ['x1', 'y1', 'x2', 'y2', 'x3', 'y3', 'x4', 'y4', 'x5', 'y5', 'x6', 'y6', 'x7',
+               'y7', 'x8', 'y8', 'x9', 'y9', 'x10', 'y10', 'x11', 'y11', 'x12', 'y12', 'x13',
+               'y13', 'x14', 'y14', 'x15', 'y15', 'x16', 'y16', 'x17', 'y17', 'x18', 'y18',
+               'x19', 'y19', 'x20', 'y20', 'x21', 'y21']
 
     model = load_model("gestures_model.h5", compile=False)
     drawingModule = mediapipe.solutions.drawing_utils
     handsModule = mediapipe.solutions.hands
 
-    def __init__(self, drone, cap, vid_label, count, distance):
+    def __init__(self, drone, cap, vid_label, count, distance, rotate):
         super(Gests_Recognition, self).__init__()
         self.drone = drone
         self.cap = cap
         self.vid_label = vid_label
         self.count = count
         self.distance = distance
+        self.rotate = rotate
 
     def mapper(self, val):
+        """Метод mapper нужен для перевода кода жеста в его
+        название."""
+
         return Gests_Recognition.gest_map[val]
 
     def run(self):
+        """В методе run последовательно обрабатываются кадры frame с объекта cap,
+        после чего разрешение frame уменьшается до 320x320px. Уже обработанное
+        изображение processed_frame прогоняется через drawingModule, после чего на
+        начальном кадре frame рисуются ориентиры руки и создаётся df, которая
+        обрабатывается нейросетью model. После этого получается название жеста user_move,
+        с помощью которого определяется, какой жест показан. Потом по жесту запускается
+        нужная команда для дрона."""
+
         self.ret, self.frame = self.cap.read()
         if self.ret:
             self.processed_frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB)
+            self.processed_frame = cv2.resize(self.processed_frame, (320, 320))
             self.height_frame, self.width_frame, self.channels_frame = self.frame.shape
             self.step = self.channels_frame * self.width_frame
             self.q_img = QImage(self.frame.data, self.width_frame, self.height_frame, self.step, QImage.Format_BGR888)
@@ -51,6 +70,7 @@ class Gests_Recognition(QtCore.QObject):
                                         max_num_hands=1) as hands:
                 # frame == 480 640
                 self.results = hands.process(self.processed_frame)
+                self.height_frame_proc, self.width_frame_proc, self.channels_frame_proc = self.processed_frame.shape
 
                 self.k = cv2.waitKey(1)
 
@@ -69,7 +89,7 @@ class Gests_Recognition(QtCore.QObject):
                                     self.pixelCoordinatesLandmark = self.drawingModule._normalized_to_pixel_coordinates(
                                         self.normalizedLandmark.x,
                                         self.normalizedLandmark.y,
-                                        self.width_frame, self.height_frame)
+                                        self.width_frame_proc, self.height_frame_proc)
                                     self.new_row.extend(list(self.pixelCoordinatesLandmark))
                             except TypeError:
                                 break
@@ -103,6 +123,9 @@ class Gests_Recognition(QtCore.QObject):
 
                                     elif self.user_move == 'back':
                                         self.drone.move_back(self.distance)
+
+                                    elif self.user_move == 'rotate':
+                                        self.drone.rotate_clockwise(self.rotate)
 
                             except ValueError:
                                 return
