@@ -1,0 +1,13 @@
+tensorflow==2.8.0
+PyQt5==5.15.6
+opencv-contrib-python==4.5.5.64
+pandas==1.4.2
+numpy==1.22.3
+djitellopy==2.4.0
+keyboard==0.13.5
+SpeechRecognition==3.8.1
+mediapipe==
+pipwin==0.5.2
+(pipwin install pyaudio)
+
+<python 3.10>
