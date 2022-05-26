@@ -18,7 +18,7 @@ class Ui_MainWindow(object):
         MainWindow.setObjectName("Drone control")
         MainWindow.setFixedSize(1080, 740)
         MainWindow.setWindowIcon(QIcon('images/drone.png'))
-        MainWindow.setStyleSheet("background-color: #212329; ")
+        MainWindow.setStyleSheet("background-color: #212329;")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
 
@@ -28,22 +28,32 @@ class Ui_MainWindow(object):
         self.distance.setFixedSize(180, 60)
         self.distance.setObjectName("distance")
         self.distance.setPlaceholderText("см")
-        self.distance.setValidator(QIntValidator())
+        self.distance.setValidator(QIntValidator(bottom=1, top=500))
+        self.distance.setToolTip("Расстояние, которое пролетает дрон за один раз.")
         self.distance.setStyleSheet("QLineEdit{background-color: #212329;\n"
                                     "border: 6px solid #aae053;\nborder-radius: 16px;\n"
                                     "color: #fff;\nfont-family: 'Open Sans', sans-serif;\n"
-                                    "font-weight: 600;\nfont-size: 26px;}")
+                                    "font-weight: 600;\nfont-size: 26px;}"
+                                    "QToolTip{background-color: #212329;\n"
+                                    "border: 3px solid #aae053;\nborder-radius: 6px;\n"
+                                    "color: #fff;\nfont-family: 'Open Sans', sans-serif;\n"
+                                    "font-weight: 600;\nfont-size: 12px;}")
         self.distance.move(800, 260)
 
         self.rotate = QLineEdit(self.centralwidget)
         self.rotate.setFixedSize(180, 60)
         self.rotate.setObjectName("rotate")
         self.rotate.setPlaceholderText("\u00b0")
-        self.rotate.setValidator(QIntValidator())
+        self.rotate.setValidator(QIntValidator(bottom=1, top=360))
+        self.rotate.setToolTip("Градус поворота дрона за один раз.")
         self.rotate.setStyleSheet("QLineEdit{background-color: #212329;\n"
-                                    "border: 6px solid #aae053;\nborder-radius: 16px;\n"
-                                    "color: #fff;\nfont-family: 'Open Sans', sans-serif;\n"
-                                    "font-weight: 600;\nfont-size: 26px;}")
+                                  "border: 6px solid #aae053;\nborder-radius: 16px;\n"
+                                  "color: #fff;\nfont-family: 'Open Sans', sans-serif;\n"
+                                  "font-weight: 600;\nfont-size: 26px;}"
+                                  "QToolTip{background-color: #212329;\n"
+                                  "border: 3px solid #aae053;\nborder-radius: 6px;\n"
+                                  "color: #fff;\nfont-family: 'Open Sans', sans-serif;\n"
+                                  "font-weight: 600;\nfont-size: 12px;}")
         self.rotate.move(800, 360)
 
         self.connect_btn = QtWidgets.QPushButton(self.centralwidget)
@@ -51,10 +61,15 @@ class Ui_MainWindow(object):
         self.connect_btn.setObjectName("connect_btn")
         self.connect_btn.setCheckable(True)
         self.connect_btn.clicked.connect(self.connecter)
+        self.connect_btn.setToolTip("Подключиться к дрону.")
         self.connect_btn.setStyleSheet("QPushButton{background-color: #aae053;\n"
                                        "border-radius: 60%;\nbackground-image: url('images/connect.png');\n"
                                        "background-repeat: no-repeat;\nbackground-position: center;}\n"
-                                       "QPushButton:hover{background-color: #81eb3b;}")
+                                       "QPushButton:hover{background-color: #81eb3b;\n}"
+                                       "QToolTip{background-color: #212329;\n"
+                                       "border: 3px solid #aae053;\nborder-radius: 6px;\n"
+                                       "color: #fff;\nfont-family: 'Open Sans', sans-serif;\n"
+                                       "font-weight: 600;\nfont-size: 12px;}")
         self.connect_btn.move(780, 40)
 
         self.voice_btn = QtWidgets.QPushButton(self.centralwidget)
@@ -62,20 +77,32 @@ class Ui_MainWindow(object):
         self.voice_btn.setObjectName("voiceButton")
         self.voice_btn.setCheckable(True)
         self.voice_btn.clicked.connect(self.voice_recognition)
+        self.voice_btn.setToolTip("Включить голосовое управление дроном.")
         self.voice_btn.setStyleSheet("QPushButton{background-color: #aae053;\n"
                                      "border-radius: 60%;\nbackground-image: url('images/micro.png');\n"
                                      "background-repeat: no-repeat;\nbackground-position: center;}\n"
-                                     "QPushButton:hover{background-color: #81eb3b;}")
+                                     "QPushButton:hover{background-color: #81eb3b;}"
+                                     "QToolTip{background-color: #212329;\n"
+                                     "border: 3px solid #aae053;\nborder-radius: 6px;\n"
+                                     "color: #fff;\nfont-family: 'Open Sans', sans-serif;\n"
+                                     "font-weight: 600;\nfont-size: 12px;}"
+                                     )
         self.voice_btn.move(60, 40)
 
         self.cam_btn = QtWidgets.QPushButton(self.centralwidget)
         self.cam_btn.setFixedSize(150, 150)
         self.cam_btn.setObjectName("cam_btn")
         self.cam_btn.clicked.connect(self.control_timer_gest)
+        self.cam_btn.setToolTip("Включить управление дроном с помощью жестов.")
         self.cam_btn.setStyleSheet("QPushButton{background-color: #aae053;\n"
                                    "border-radius: 60%;\nbackground-image: url('images/hand.png');\n"
                                    "background-repeat: no-repeat;\nbackground-position: center;}\n"
-                                   "QPushButton:hover{background-color: #81eb3b;}")
+                                   "QPushButton:hover{background-color: #81eb3b;}"
+                                   "QToolTip{background-color: #212329;\n"
+                                   "border: 3px solid #aae053;\nborder-radius: 6px;\n"
+                                   "color: #fff;\nfont-family: 'Open Sans', sans-serif;\n"
+                                   "font-weight: 600;\nfont-size: 12px;}"
+                                   )
         self.cam_btn.move(300, 40)
 
         self.control_btn = QtWidgets.QPushButton(self.centralwidget)
@@ -83,17 +110,24 @@ class Ui_MainWindow(object):
         self.control_btn.setObjectName("control_btn")
         self.control_btn.setCheckable(True)
         self.control_btn.clicked.connect(self.kboard_recognition)
+        self.control_btn.setToolTip("Включить управление дроном с помощью клавиатуры.")
         self.control_btn.setStyleSheet("QPushButton{background-color: #aae053;\n"
                                        "border-radius: 60%;\nbackground-image: url('images/pult.png');\n"
                                        "background-repeat: no-repeat;\nbackground-position: center;}\n"
-                                       "QPushButton:hover{background-color: #81eb3b;}")
+                                       "QPushButton:hover{background-color: #81eb3b;}"
+                                       "QToolTip{background-color: #212329;\n"
+                                       "border: 3px solid #aae053;\nborder-radius: 6px;\n"
+                                       "color: #fff;\nfont-family: 'Open Sans', sans-serif;\n"
+                                       "font-weight: 600;\nfont-size: 12px;}"
+                                       )
         self.control_btn.move(540, 40)
 
         self.video_label = QtWidgets.QLabel(self.centralwidget)
         self.video_label.setObjectName("video_label")
         self.video_label.setFixedSize(640, 480)
-        self.video_label.setStyleSheet("border: 5px solid black;"
-                                       "background-color: #d8e6e4;")
+        self.video_label.setStyleSheet("border: 6px solid #aae053;\n"
+                                       "background-color: #2e3138;\n"
+                                       "border-radius: 10px;")
         self.video_label.move(120, 230)
 
         self.voice_btn.setEnabled(False)
@@ -164,6 +198,7 @@ class Ui_MainWindow(object):
 
             self.cam_btn.setEnabled(False)
             self.control_btn.setEnabled(False)
+            self.connect_btn.setEnabled(False)
 
             self.thread_voice = QtCore.QThread()
             self.v_recog = Voice_Recognition(self.tello)
@@ -179,6 +214,7 @@ class Ui_MainWindow(object):
 
             self.cam_btn.setEnabled(True)
             self.control_btn.setEnabled(True)
+            self.connect_btn.setEnabled(True)
 
             self.v_recog.running = False
             self.thread_voice.terminate()
@@ -196,6 +232,7 @@ class Ui_MainWindow(object):
 
             self.cam_btn.setEnabled(False)
             self.voice_btn.setEnabled(False)
+            self.connect_btn.setEnabled(False)
 
             self.thread_kboard = QtCore.QThread()
             self.k_recog = Keybord_Recognition(self.tello, int(self.distance.text()), int(self.rotate.text()))
@@ -211,6 +248,7 @@ class Ui_MainWindow(object):
 
             self.cam_btn.setEnabled(True)
             self.voice_btn.setEnabled(True)
+            self.connect_btn.setEnabled(True)
 
             self.k_recog.stop()
             self.thread_kboard.terminate()
@@ -236,6 +274,7 @@ class Ui_MainWindow(object):
 
             self.voice_btn.setEnabled(False)
             self.control_btn.setEnabled(False)
+            self.connect_btn.setEnabled(False)
 
             self.timer_gest.start(20)
         else:
@@ -244,6 +283,7 @@ class Ui_MainWindow(object):
 
             self.voice_btn.setEnabled(True)
             self.control_btn.setEnabled(True)
+            self.connect_btn.setEnabled(True)
 
             self.cam_btn.setStyleSheet("QPushButton{background-color: #aae053;\n"
                                        "border-radius: 60%;\nbackground-image: url('images/hand.png');\n"
