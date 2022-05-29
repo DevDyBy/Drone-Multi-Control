@@ -85,8 +85,7 @@ class Ui_MainWindow(object):
                                      "QToolTip{background-color: #212329;\n"
                                      "border: 3px solid #aae053;\nborder-radius: 6px;\n"
                                      "color: #fff;\nfont-family: 'Open Sans', sans-serif;\n"
-                                     "font-weight: 600;\nfont-size: 12px;}"
-                                     )
+                                     "font-weight: 600;\nfont-size: 12px;}")
         self.voice_btn.move(60, 40)
 
         self.cam_btn = QtWidgets.QPushButton(self.centralwidget)
@@ -101,8 +100,7 @@ class Ui_MainWindow(object):
                                    "QToolTip{background-color: #212329;\n"
                                    "border: 3px solid #aae053;\nborder-radius: 6px;\n"
                                    "color: #fff;\nfont-family: 'Open Sans', sans-serif;\n"
-                                   "font-weight: 600;\nfont-size: 12px;}"
-                                   )
+                                   "font-weight: 600;\nfont-size: 12px;}")
         self.cam_btn.move(300, 40)
 
         self.control_btn = QtWidgets.QPushButton(self.centralwidget)
@@ -118,8 +116,7 @@ class Ui_MainWindow(object):
                                        "QToolTip{background-color: #212329;\n"
                                        "border: 3px solid #aae053;\nborder-radius: 6px;\n"
                                        "color: #fff;\nfont-family: 'Open Sans', sans-serif;\n"
-                                       "font-weight: 600;\nfont-size: 12px;}"
-                                       )
+                                       "font-weight: 600;\nfont-size: 12px;}")
         self.control_btn.move(540, 40)
 
         self.video_label = QtWidgets.QLabel(self.centralwidget)

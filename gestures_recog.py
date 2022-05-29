@@ -1,5 +1,5 @@
 from PyQt5 import QtCore
-from keras.models import load_model
+from tensorflow.python.keras.models import load_model
 from PyQt5.QtGui import QImage, QPixmap
 import mediapipe
 import cv2
